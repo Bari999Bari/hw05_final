@@ -291,19 +291,19 @@ class PostCreateEditFormTests(TestCase):
         Проверка возможности создания подписки
         авторизованным пользователем.
         """
-        folows_count = Follow.objects.count()
+        follows_count = Follow.objects.count()
         self.authorized_client.post(
             reverse('posts:profile_follow',
                     kwargs={'username': self.user.username}),
             follow=True
         )
-        self.assertEqual(Follow.objects.count(), folows_count + 1)
+        self.assertEqual(Follow.objects.count(), follows_count + 1)
         self.authorized_client.post(
             reverse('posts:profile_unfollow',
                     kwargs={'username': self.user.username}),
             follow=True
         )
-        self.assertEqual(Follow.objects.count(), folows_count)
+        self.assertEqual(Follow.objects.count(), follows_count)
         # response = self.authorized_client.get(
         #     reverse('posts:follow_index'))
         # first_object = (response.context.get('page_obj').object_list[0])
