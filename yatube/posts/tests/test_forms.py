@@ -292,13 +292,13 @@ class PostCreateEditFormTests(TestCase):
         авторизованным пользователем.
         """
         follows_count = Follow.objects.count()
-        self.authorized_client.post(
+        self.authorized_client_not_author.post(
             reverse('posts:profile_follow',
                     kwargs={'username': self.user.username}),
             follow=True
         )
         self.assertEqual(Follow.objects.count(), follows_count + 1)
-        self.authorized_client.post(
+        self.authorized_client_not_author.post(
             reverse('posts:profile_unfollow',
                     kwargs={'username': self.user.username}),
             follow=True
