@@ -32,9 +32,10 @@ class Post(models.Model):
                               null=True,
                               verbose_name='Сообщество')
     image = models.ImageField(
-        'Картинка',
+        verbose_name='Картинка',
         upload_to='posts/',
-        blank=True
+        blank=True,
+        help_text='Картинка для описания поста'
     )
 
     class Meta:
@@ -66,3 +67,16 @@ class Follow(models.Model):
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='following')
+
+    # СМУТНО
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                name='unique_relationships',
+                fields=['user', 'author'],
+            ),
+            models.CheckConstraint(
+                name='prevent_self_follow',
+                check=~models.Q(user=models.F('author')),
+            ),
+        ]

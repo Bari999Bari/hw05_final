@@ -58,6 +58,14 @@ class PostModelTest(TestCase):
                 'posts:post_edit',
                 kwargs={'post_id': self.post.pk}): 'posts/create_post.html',
             reverse('posts:post_create'): 'posts/create_post.html',
+            reverse(
+                'posts:follow_index'): 'posts/follow.html',
+            reverse(
+                'posts:profile_follow',
+                kwargs={'username': self.user.username}): 'posts/index.html',
+            reverse(
+                'posts:profile_unfollow',
+                kwargs={'username': self.user.username}): 'posts/index.html',
         }
         for address, template in templates_url_names.items():
             with self.subTest(address=address):

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
-from ..models import Group, Post
+from ..models import Group, Post, Comment
 
 User = get_user_model()
 
@@ -30,6 +30,7 @@ class PostModelTest(TestCase):
             'pub_date': 'Дата публикации',
             'author': 'Автор',
             'group': 'Сообщество',
+            'image': 'Картинка',
         }
         for field_name, content in template.items():
             with self.subTest(field_name=field_name):
@@ -69,3 +70,36 @@ class GroupModelTest(TestCase):
                 self.assertEqual(
                     group_field_verbose_name,
                     content)
+
+
+class CommentModelTest(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='auth')
+        cls.post = Post.objects.create(
+            author=cls.user,
+            text='Тестовый пост 15 15',
+        )
+        cls.comment = Comment.objects.create(
+            text='sdf',
+            author=cls.user,
+            post=cls.post,
+        )
+        cls.LIMIT_SYMBOLS = 15
+
+    def test_post_model_have_correct_verbose_name(self):
+        """Проверяем, что у полей модели Comment корректные verbose_name."""
+        template = {
+            'text': 'Содержание',
+            'created': 'Дата публикации',
+            'author': 'Автор',
+            'post': 'Запись',
+        }
+        for field_name, content in template.items():
+            with self.subTest(field_name=field_name):
+                post_field_verbose_name = (
+                    CommentModelTest.comment.
+                    _meta.get_field(field_name).verbose_name
+                )
+                self.assertEqual(post_field_verbose_name, content)

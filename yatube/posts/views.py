@@ -18,6 +18,7 @@ def index(request):
     template = 'posts/index.html'
     post_list = Post.objects.select_related('author', 'group').all()
     context = {
+        'index': True,
         'page_obj': paginator(request, post_list),
     }
     return render(request, template, context)
@@ -39,10 +40,15 @@ def profile(request, username):
     user = get_object_or_404(User, username=username)
     post_list = user.posts.select_related('group').all()
     following_status = False
-    if request.user.is_authenticated:
-        if Follow.objects.filter(user=request.user, author=user).exists():
-            following_status = True
+    show_follow_button = True
+    if request.user == user or not request.user.is_authenticated:
+        show_follow_button = False
+    if (request.user.is_authenticated
+            and Follow.objects.filter(
+                user=request.user, author=user).exists()):
+        following_status = True
     context = {
+        'show_follow_button': show_follow_button,
         'following_status': following_status,
         'consumer': user,
         'page_obj': paginator(request, post_list),
@@ -51,7 +57,7 @@ def profile(request, username):
 
 
 def post_detail(request, post_id):
-    form = CommentForm(request.POST or None)
+    form = CommentForm()
     post = get_object_or_404(
         Post.objects.select_related('author', 'group'),
         id=post_id)
@@ -116,6 +122,7 @@ def follow_index(request):
     post_list = Post.objects.filter(
         author__following__user=request.user)  # не ясно
     context = {
+        'follow': True,
         'page_obj': paginator(request, post_list),
     }
     return render(request, template, context)
@@ -125,9 +132,9 @@ def follow_index(request):
 def profile_follow(request, username):
     template = 'posts/index.html'
     author = get_object_or_404(User, username=username)
-    if request.user != author and not Follow.objects.filter(
-            user=request.user, author=author).exists():
-        Follow.objects.create(user=request.user, author=author)
+    if request.user != author:
+        # не ясно
+        Follow.objects.get_or_create(user=request.user, author=author)
     return render(request, template)
 
 
@@ -135,6 +142,5 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     template = 'posts/index.html'
     author = get_object_or_404(User, username=username)
-    unf = Follow.objects.filter(user=request.user, author=author)
-    unf.delete()
+    Follow.objects.filter(user=request.user, author=author).delete()
     return render(request, template)

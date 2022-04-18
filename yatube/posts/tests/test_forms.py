@@ -8,13 +8,15 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from ..models import Post, Group, Comment, Follow
+from ..models import Post, Group, Comment
 
 User = get_user_model()
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
 
+# ¯\_(ツ)_/¯
+# @override_settings(ROOT_URLCONF='/media/')
 class PostCreateEditFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -85,8 +87,7 @@ class PostCreateEditFormTests(TestCase):
                 text='Тестовый текст из формы',
                 group=self.group.pk,
                 author=self.user.pk,
-                # image='posts/small.gif' не могу настроить
-                # создаются лишние директории
+                # image='posts/small.gif'
             ).exists()
         )
 
@@ -153,6 +154,7 @@ class PostCreateEditFormTests(TestCase):
         self.assertTrue(
             Post.objects.filter(
                 text='Тестовый пост 15 15',
+                # не понял как это из формы
                 group=self.group.pk,
                 author=self.user.pk,
                 pub_date=self.post.pub_date,
@@ -176,7 +178,7 @@ class PostCreateEditFormTests(TestCase):
         )
         self.assertTrue(
             Post.objects.filter(
-                text='Тестовый пост 15 15',
+                text=self.post.text,
                 group=self.group.pk,
                 author=self.user.pk,
                 pub_date=self.post.pub_date,
@@ -285,29 +287,3 @@ class PostCreateEditFormTests(TestCase):
         )
         self.assertEqual(Comment.objects.count(), comments_count)
         self.assertEqual(response.status_code, HTTPStatus.FOUND)
-
-    def test_create_delete_follow_authorized(self):
-        """
-        Проверка возможности создания подписки
-        авторизованным пользователем.
-        """
-        follows_count = Follow.objects.count()
-        self.authorized_client_not_author.post(
-            reverse('posts:profile_follow',
-                    kwargs={'username': self.user.username}),
-            follow=True
-        )
-        self.assertEqual(Follow.objects.count(), follows_count + 1)
-        self.authorized_client_not_author.post(
-            reverse('posts:profile_unfollow',
-                    kwargs={'username': self.user.username}),
-            follow=True
-        )
-        self.assertEqual(Follow.objects.count(), follows_count)
-        # response = self.authorized_client.get(
-        #     reverse('posts:follow_index'))
-        # first_object = (response.context.get('page_obj').object_list[0])
-        # self.assertEqual(first_object.text, self.post.text)
-        # self.assertEqual(first_object.author, self.user)
-        # self.assertEqual(first_object.group, self.group)
-        # self.assertEqual(first_object.image, self.post.image)
