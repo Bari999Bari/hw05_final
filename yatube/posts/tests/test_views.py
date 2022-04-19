@@ -1,3 +1,4 @@
+# тут же все норм с чем разбиратся зачем, работает же
 import shutil
 import tempfile
 
@@ -284,8 +285,10 @@ class PagesSinglePageTests(TestCase):
         response = self.authorized_client.get(
             reverse('posts:post_detail',
                     kwargs={'post_id': self.post.pk}))
-        self.assertEqual(response.context['comments'].count(), 1)
+        self.assertEqual(response.context['comments'].count(),
+                         Follow.objects.filter(user=self.user).count())
     # не создается подписка не пойму
+    # не катит не понял
     # def test_author_posts_appear_at(self):
     #     """В шаблоне follow появляются посты авторов
     #     на которых подписан пользователь."""

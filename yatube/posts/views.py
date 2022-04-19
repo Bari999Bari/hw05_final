@@ -39,14 +39,13 @@ def profile(request, username):
     template = 'posts/profile.html'
     user = get_object_or_404(User, username=username)
     post_list = user.posts.select_related('group').all()
-    following_status = False
+    following_status = (request.user.is_authenticated
+                        and Follow.objects.filter(
+                            user=request.user,
+                            author=user).exists())
     show_follow_button = True
     if request.user == user or not request.user.is_authenticated:
         show_follow_button = False
-    if (request.user.is_authenticated
-            and Follow.objects.filter(
-                user=request.user, author=user).exists()):
-        following_status = True
     context = {
         'show_follow_button': show_follow_button,
         'following_status': following_status,

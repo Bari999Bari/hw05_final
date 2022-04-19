@@ -15,8 +15,6 @@ User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
 
-# ¯\_(ツ)_/¯
-# @override_settings(ROOT_URLCONF='/media/')
 class PostCreateEditFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -49,6 +47,8 @@ class PostCreateEditFormTests(TestCase):
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
+    # не понимаю что нужно сделать
+    # @override_settings(MEDIA_URL='/media/posts/')
     def test_create_post_authorized_full(self):
         """
         Валидная форма создает запись в Post
@@ -87,7 +87,7 @@ class PostCreateEditFormTests(TestCase):
                 text='Тестовый текст из формы',
                 group=self.group.pk,
                 author=self.user.pk,
-                # image='posts/small.gif'
+                # image='small.gif'
             ).exists()
         )
 
@@ -153,8 +153,7 @@ class PostCreateEditFormTests(TestCase):
         )
         self.assertTrue(
             Post.objects.filter(
-                text='Тестовый пост 15 15',
-                # не понял как это из формы
+                text=self.post.text,
                 group=self.group.pk,
                 author=self.user.pk,
                 pub_date=self.post.pub_date,
@@ -209,8 +208,8 @@ class PostCreateEditFormTests(TestCase):
                              )
         self.assertTrue(
             Post.objects.filter(
-                text='Тестовый текст из формы Редактированный',
-                group=self.group.pk,
+                text=form_data['text'],
+                group=form_data['group'],
                 author=self.user.pk,
                 pub_date=self.post.pub_date,
             ).exists()

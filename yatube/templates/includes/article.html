@@ -1,7 +1,7 @@
 {% load thumbnail %}
 <article>
   <ul>
-    {% if PRINT_AUTHOR_LINK == True %}
+    {% if PRINT_AUTHOR_LINK %}
       <li>
         Автор: {{ post.author.get_full_name }}
         <a href="{% url 'posts:profile' post.author.username %}">

@@ -1,5 +1,5 @@
-from django.shortcuts import render
 from http import HTTPStatus
+from django.shortcuts import render
 
 
 def page_not_found(request, exception):

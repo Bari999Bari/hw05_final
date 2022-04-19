@@ -4,8 +4,8 @@
   <div class="container py-5">
     <h1>Подписки</h1>
     {% include 'includes/switcher.html' %}
-{#    в кэш еще параметры надо передать не пойму какие#}
-    {% cache 20 sidebar request.user.username %}
+    # теперь свитчер неправильно работает какой параметр за него отвечает
+    {% cache 20 sidebar request.user.username page_obj.number %}
       {% for post in page_obj %}
         {% include 'includes/article.html' with PRINT_GROUP_LINK=True PRINT_AUTHOR_LINK=True %}
       {% endfor %}
