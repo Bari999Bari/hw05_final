@@ -1,4 +1,3 @@
-# тут же все норм с чем разбиратся зачем, работает же
 import shutil
 import tempfile
 
@@ -6,7 +5,7 @@ from django.contrib.auth import get_user_model
 from django import forms
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.conf import settings
 
@@ -62,6 +61,7 @@ class PagesMultiPagesTests(TestCase):
                                  - settings.FIRST_PAGE_OBJ_COUNT)
 
 
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PagesSinglePageTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -94,7 +94,7 @@ class PagesSinglePageTests(TestCase):
             text='Тестовый пост 15 15',
             image=uploaded)
         cls.post_author = Post.objects.create(
-            author=cls.user,
+            author=cls.user_author,
             group=cls.group,
             text='Пост автора',
             image=uploaded)
@@ -214,9 +214,7 @@ class PagesSinglePageTests(TestCase):
         response = self.guest_client.get(
             reverse('posts:profile',
                     kwargs={'username': self.user.username}))
-        # кустарщина заменил ноль на единицу потому что создавал два поста
-        # и первый пост сдвинулся к концу списка посто может есть метод лучше?
-        first_object = (response.context.get('page_obj').object_list[1])
+        first_object = (response.context.get('page_obj').object_list[0])
         second_object = (response.context.get('consumer'))
         self.assertEqual(second_object, self.user)
         self.assertEqual(first_object.text, self.post.text)
@@ -287,15 +285,14 @@ class PagesSinglePageTests(TestCase):
                     kwargs={'post_id': self.post.pk}))
         self.assertEqual(response.context['comments'].count(),
                          Follow.objects.filter(user=self.user).count())
-    # не создается подписка не пойму
-    # не катит не понял
-    # def test_author_posts_appear_at(self):
-    #     """В шаблоне follow появляются посты авторов
-    #     на которых подписан пользователь."""
-    #     response = self.authorized_client.get(
-    #         reverse('posts:follow_index'))
-    #     obj_count = response.context.get('page_obj').object_list.count()
-    #     self.assertEqual(obj_count, 1)
+
+    def test_author_posts_appear_at(self):
+        """В шаблоне follow появляются посты авторов
+        на которых подписан пользователь."""
+        response = self.authorized_client.get(
+            reverse('posts:follow_index'))
+        obj_count = response.context.get('page_obj').object_list.count()
+        self.assertEqual(obj_count, 1)
 
     def test_create_follow_authorized(self):
         """

@@ -5,7 +5,7 @@ from http import HTTPStatus
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from ..models import Post, Group, Comment
@@ -15,6 +15,7 @@ User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
 
+@override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostCreateEditFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -47,8 +48,6 @@ class PostCreateEditFormTests(TestCase):
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
-    # не понимаю что нужно сделать
-    # @override_settings(MEDIA_URL='/media/posts/')
     def test_create_post_authorized_full(self):
         """
         Валидная форма создает запись в Post
@@ -87,7 +86,7 @@ class PostCreateEditFormTests(TestCase):
                 text='Тестовый текст из формы',
                 group=self.group.pk,
                 author=self.user.pk,
-                # image='small.gif'
+                image='posts/small.gif'
             ).exists()
         )
 
