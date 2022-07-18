@@ -24,8 +24,9 @@ SECRET_KEY = '_uo&%@!z%v+a%%7fg(v(s-(1m1_eq8%dfo^caqisem9fw!641+'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
 ALLOWED_HOSTS = [
+    'www.rafael200.pythonanywhere.com',
+    'rafael200.pythonanywhere.com',
     'localhost',
     '127.0.0.1',
     '[::1]',
